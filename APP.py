@@ -6,30 +6,30 @@ from NP import calcular_monto, total_balance
 from SQL import crear_tabla, añadir_transaccion, obtener_transacciones
 
 
-st.title("GGP")
-st.subheader("Gestión de Gastos Personales")
+st.title("SpendManager")
+st.subheader("Track your expenses and income easily")
 
 crear_tabla()
 
-with st.form("Añadir Transacción", clear_on_submit=True):
-    tipo = st.selectbox("Tipo de Transacción", ["Ingreso", "Gasto"])
-    medio = st.selectbox("Medio de Pago", ["Efectivo", "Tarjeta de Crédito", "Transferencia Bancaria", "Otros"])
-    monto = st.number_input("Monto", min_value=0.0, format="%.2f", step=1.0, placeholder="Ingrese el monto", value= None )
-    categoria = st.selectbox("Categoría", ["Alimentos", "Transporte", "Entretenimiento", "Salud", "Educación", "Otros"])
-    notas = st.text_input("Notas", placeholder="Opcional",)
+with st.form("Add Transaction", clear_on_submit=True):
+    type = st.selectbox("Transaction Type", ["Income", "Expense"])
+    method = st.selectbox("Payment Method", ["Cash", "Credit Card", "Bank Transfer", "Other"])
+    amount = st.number_input("Amount", min_value=0.0, format="%.2f", step=1.0, placeholder="Enter the amount", value= None )
+    category = st.selectbox("Category", ["Food", "Transportation", "Entertainment", "Health", "Education", "Other"])
+    notes = st.text_input("Notes", placeholder="Optional",)
  
 
-    subido = st.form_submit_button("Añadir Transacción")
+    subido = st.form_submit_button("Add Transaction")
      
 
 if subido:
     añadir_transaccion(
-        tipo =  tipo,
-        monto = monto,
-        notas = notas,
-        categoria = categoria
+        type =  type,
+        amount = amount,
+        notes = notes,
+        category = category
                        )
-    st.success("Transacción añadida correctamente.")
+    st.success("Transaction added successfully.")
 
 df = obtener_transacciones()
 st.metric(label="Balance Total", value=f"${total_balance(df):,.2f}")

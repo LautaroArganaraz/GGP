@@ -3,33 +3,33 @@ from pathlib import Path
 import pandas as pd
 
 
-DB_PATH = Path(__file__).with_name("BSD.db")
+DB_PATH = Path(__file__).with_name("database.db")
 
 def crear_tabla():
     create_table_query = """
-    CREATE TABLE IF NOT EXISTS transacciones (
+    CREATE TABLE IF NOT EXISTS transactions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        tipo TEXT NOT NULL,
-        monto REAL NOT NULL,
-        notas TEXT,
-        categoria TEXT
+        type TEXT NOT NULL,
+        amount REAL NOT NULL,
+        notes TEXT,
+        category TEXT
     )
     """
     with sq.connect(DB_PATH) as conn:
         conn.execute(create_table_query)
 
-def añadir_transaccion(tipo, monto, notas, categoria):
+def añadir_transaccion(type, amount, notes, category):
     insert_query = """
-    INSERT INTO transacciones (tipo, monto, notas, categoria)
+    INSERT INTO transactions (type, amount, notes, category)
     VALUES (?, ?, ?, ?)
     """
     with sq.connect(DB_PATH) as conn:
-        conn.execute(insert_query, (tipo, monto, notas, categoria))
+        conn.execute(insert_query, (type, amount, notes, category))
 
 def obtener_transacciones():
     query = """
-    SELECT tipo AS Tipo, monto AS Monto, notas AS Notas, categoria AS Categoría
-    FROM transacciones
+    SELECT type AS Type, amount AS Amount, notes AS Notes, category AS Category
+    FROM transactions
     ORDER BY id DESC
     """
     with sq.connect(DB_PATH) as conn:
