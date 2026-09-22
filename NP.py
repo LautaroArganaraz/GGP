@@ -3,11 +3,13 @@ import pandas as pd
 import sqlite3 as sq
 import streamlit as st
 
-def calcular_monto(tipo: str, monto: float) -> float:
-    if tipo == "Ingreso":
-        return monto * 1
+#This will tell if the transaction is positive or negative
+def calculate_amount(type: str, amount: float) -> float:
+    if type == "Income ":
+        return amount * 1
     else:
-        return monto * -1
+        return amount * -1
 
-def total_balance(transacciones: pd.DataFrame) -> float:
-    return transacciones['Monto'].sum()
+#This calls the database to check the actual balance
+def total_balance(transactions: pd.DataFrame) -> float:
+    return transactions['Amount'].sum()
