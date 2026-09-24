@@ -13,27 +13,37 @@ def create_table():
         type TEXT NOT NULL,
         amount REAL NOT NULL,
         notes TEXT,
-        category TEXT
+        category TEXT,
+        date DATE
     )
     """
     with sq.connect(DB_PATH) as conn:
         conn.execute(create_table_query)
 
 #This query will add the transaction in the database
-def add_transaction(type, amount, notes, category):
+def add_transaction(type, amount, notes, category, date):
     insert_query = """
-    INSERT INTO transactions (type, amount, notes, category)
-    VALUES (?, ?, ?, ?)
+    INSERT INTO transactions (type, amount, notes, category, date)
+    VALUES (?, ?, ?, ?, ?)
     """
     with sq.connect(DB_PATH) as conn:
-        conn.execute(insert_query, (type, amount, notes, category))
+        conn.execute(insert_query, (type, amount, notes, category, date))
 
 #This query gets all of the transactions
 def get_transactions():
     query = """
-    SELECT type AS Type, amount AS Amount, notes AS Notes, category AS Category
+    SELECT type AS Type, amount AS Amount, notes AS Notes, category AS Category, date AS Date
     FROM transactions
     ORDER BY id DESC
     """
     with sq.connect(DB_PATH) as conn:
         return pd.read_sql_query(query, conn)
+
+def actual_month_data():
+    amd_query = """
+    SELECT * FROM transactions
+    WHERE date >= date('now', '-1 month')
+    """
+    with sq.connect(DB_PATH) as conn:
+        return pd.read_sql_query(amd_query, conn)
+    

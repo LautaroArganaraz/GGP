@@ -5,7 +5,7 @@ import streamlit as st
 
 #This will tell if the transaction is positive or negative
 def calculate_amount(type: str, amount: float) -> float:
-    if type == "Income ":
+    if type == "Income":
         return amount * 1
     else:
         return amount * -1

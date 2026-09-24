@@ -2,8 +2,9 @@ import streamlit as st
 import pandas as pd 
 import numpy as np
 import os
+import plotly.express as pl
 from NP import calculate_amount, total_balance
-from SQL import create_table, add_transaction, get_transactions
+from SQL import create_table, add_transaction, get_transactions, actual_month_data
 
 
 st.title("SpendManager")
@@ -13,29 +14,62 @@ st.subheader("Track your expenses and income easily")
 create_table()
 
 #Here the user can add a new transaction in the database.
-with st.form("Add Transaction", clear_on_submit=True):
-    type = st.selectbox("Transaction Type", ["Income", "Expense"])
-    method = st.selectbox("Payment Method", ["Cash", "Credit Card", "Bank Transfer", "Other"])
-    amount = st.number_input("Amount", min_value=0.0, format="%.2f", step=1.0, placeholder="Enter the amount", value= None )
-    category = st.selectbox("Category", ["Food", "Transportation", "Entertainment", "Health", "Education", "Other"])
-    notes = st.text_input("Notes", placeholder="Optional",)
+with st.expander(label="Add an transaction"):
+    with st.form("Add Transaction", clear_on_submit=True):
+        type = st.selectbox("Transaction Type", ["Income", "Expense"])
+        date = st.date_input("Date")
+        method = st.selectbox("Payment Method", ["Cash", "Credit Card", "Bank Transfer", "Other"])
+        amount = st.number_input("Amount", min_value=0.0, format="%.2f", step=1.0, placeholder="Enter the amount", value= None )
+        category = st.selectbox("Category", ["Food", "Transportation", "Entertainment", "Health", "Education", "Other"])
+        notes = st.text_input("Notes", placeholder="Optional",)
  
 
-    submit = st.form_submit_button("Add Transaction")
-     
+        submit = st.form_submit_button("Add Transaction")
+
+
 #This section will start only if the sumbit button was pressed
 if submit:
+    signed_amount = calculate_amount(type, amount)
     add_transaction(
         type =  type,
-        amount = amount,
+        amount = signed_amount,
         notes = notes,
-        category = category
+        category = category,
+        date = date
                        )
     st.success("Transaction added successfully.")
 
 #This creates the df based on the transactions in the database
 df = get_transactions()
 
-#This shows the actual balance based on the database
+st.divider()
+
+#This shows the actual balance based on the database 
 st.metric(label="Total balance", value=f"${total_balance(df):,.2f}")
-st.dataframe(df)
+#This shows the total income based on the database 
+st.metric(label= "Total Income", value=f"${df[df['Type'] == 'Income']['Amount'].sum():,.2f}")
+#This shows the total expenses based on the databse
+st.metric(label= "Total Expenses", value=f"${df[df['Type'] == 'Expense']['Amount'].sum():,.2f}")
+
+st.divider()
+
+tab1 ,tab2 = st.tabs(["Charts", "Monthly Summary"])
+with tab1:
+    st.subheader("Charts")
+    st.text("Here you can see your transactions in a chart")
+    pl.pie()
+
+
+
+with tab2:
+    st.subheader("Monthly Summary")
+    st.text("Here you can see your transactions from the last month")
+    st.dataframe(actual_month_data(), hide_index=True)    
+
+
+st.divider()
+with st.expander(label="Transactions"):
+    st.subheader("Transactions")
+    st.text("Here you can see your last 10 transactions")
+    st.dataframe(df.head(10))
+
