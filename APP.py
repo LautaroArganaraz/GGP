@@ -2,7 +2,8 @@ import streamlit as st
 import pandas as pd 
 import numpy as np
 import os
-import plotly.express as pl
+import plotly as pl
+import plotly.express as ple
 from NP import calculate_amount, total_balance
 from SQL import create_table, add_transaction, get_transactions, actual_month_data
 
@@ -45,26 +46,41 @@ df = get_transactions()
 st.divider()
 
 #This shows the actual balance based on the database 
-st.metric(label="Total balance", value=f"${total_balance(df):,.2f}")
+st.metric(label="Total balance",
+          value=f"${total_balance(df):,.2f}")
 #This shows the total income based on the database 
-st.metric(label= "Total Income", value=f"${df[df['Type'] == 'Income']['Amount'].sum():,.2f}")
+st.metric(label= "Total Income",
+          value=f"${df[df['Type'] == 'Income']['Amount'].sum():,.2f}")
 #This shows the total expenses based on the databse
-st.metric(label= "Total Expenses", value=f"${df[df['Type'] == 'Expense']['Amount'].sum():,.2f}")
+st.metric(label= "Total Expenses",
+          value=f"${df[df['Type'] == 'Expense']['Amount'].sum():,.2f}")
 
 st.divider()
+
+expense_df = df[df["Type"] == "Expense"].copy()
+expense_df["Amount"] = expense_df["Amount"].abs()
 
 tab1 ,tab2 = st.tabs(["Charts", "Monthly Summary"])
 with tab1:
     st.subheader("Charts")
     st.text("Here you can see your transactions in a chart")
-    pl.pie()
-
+    st.plotly_chart(
+        ple.pie(
+            data_frame=expense_df,
+            values='Amount',
+            names='Category',
+            title='Expenses by Category',
+            hole=0.3,
+        ),
+        use_container_width=True,
+    )
 
 
 with tab2:
     st.subheader("Monthly Summary")
     st.text("Here you can see your transactions from the last month")
-    st.dataframe(actual_month_data(), hide_index=True)    
+    st.dataframe(actual_month_data(), hide_index=True) 
+    
 
 
 st.divider()
